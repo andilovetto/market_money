@@ -7,4 +7,13 @@ class Api::V0::VendorsController < ApplicationController
       render json: ErrorSerializer.error_handler(e), status: 404
     end
   end
+
+  def show
+    begin
+      vendor = Vendor.find(params[:id])
+      render json: VendorSerializer.new(vendor)
+    rescue StandardError => e
+      render json: ErrorSerializer.error_handler(e), status: 404
+    end
+  end
 end
