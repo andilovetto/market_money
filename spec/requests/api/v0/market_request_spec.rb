@@ -18,19 +18,26 @@ RSpec.describe "markets request" do
         expect(market[:attributes]).to have_key(:name)
         expect(market[:attributes][:name]).to be_a String
         expect(market[:attributes]).to have_key(:street)
+        expect(market[:attributes][:street]).to be_a String
         expect(market[:attributes]).to have_key(:city)
+        expect(market[:attributes][:city]).to be_a String
         expect(market[:attributes]).to have_key(:county)
+        expect(market[:attributes][:county]).to be_a String
         expect(market[:attributes]).to have_key(:state)
+        expect(market[:attributes][:state]).to be_a String
         expect(market[:attributes]).to have_key(:zip)
+        expect(market[:attributes][:zip]).to be_a String
         expect(market[:attributes]).to have_key(:lat)
+        expect(market[:attributes][:lat]).to be_a String
         expect(market[:attributes]).to have_key(:lon)
+        expect(market[:attributes][:lon]).to be_a String
         expect(market[:attributes]).to have_key(:vendor_count)
         expect(market[:attributes][:vendor_count]).to be_an Integer
       end
     end
   end
 
-  describe "markets show action" do
+  describe "market show action" do
     context "when call is successful" do
       it "returns a market" do
         market_1 = create(:market)
@@ -70,7 +77,7 @@ RSpec.describe "markets request" do
         expect(error_response).to have_key(:errors)
         expect(error_response[:errors][0]).to have_key(:detail)
         expect(error_response[:errors][0][:detail]).to eq("Couldn't find Market with 'id'=123123123123")
-        
+
       end
     end
   end
