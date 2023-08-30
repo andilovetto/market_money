@@ -233,4 +233,35 @@ RSpec.describe "vendor request" do
       end
     end
   end
+
+  describe "vendor destroy action" do
+    context "when a valid id is passed in, that vendor will be destroyed, as well as its associations" do
+      it "returns status 204" do
+        vendor_1 = create(:vendor)
+
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        delete "/api/v0/vendors/#{vendor_1.id}", headers: headers
+
+        expect(response.status).to eq(204)
+        expect { Vendor.find(vendor_1.id) }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context "when an invalid id is passed it will raise an error" do
+      it "returns status 404" do
+
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        delete "/api/v0/vendors/123123123123", headers: headers
+
+        error_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response.status).to eq(404)
+        expect(error_response).to have_key(:errors)
+        expect(error_response[:errors][0]).to have_key(:detail)
+        expect(error_response[:errors][0][:detail]).to eq("Couldn't find Vendor with 'id'=123123123123")
+      end
+    end
+  end
 end
