@@ -10,7 +10,6 @@ class Api::V0::VendorsController < ApplicationController
 
   def show
     begin
-      vendor
       render json: VendorSerializer.new(vendor)
     rescue StandardError => e
       render json: ErrorSerializer.error_handler(e), status: 404
@@ -29,7 +28,6 @@ class Api::V0::VendorsController < ApplicationController
 
   def update
     begin
-      vendor
       vendor.update!(vendor_params)
       render json: VendorSerializer.new(vendor)
     rescue ActiveRecord::RecordNotFound => e
