@@ -18,13 +18,23 @@ class Api::V0::VendorsController < ApplicationController
   end
 
   def create
-    vendor = Vendor.new(vendor_params)
     begin
+      vendor = Vendor.new(vendor_params)
       vendor.save!
-      
       render json: VendorSerializer.new(vendor), status: 201
     rescue StandardError => e
-      
+      render json: ErrorSerializer.error_handler(e), status: 400
+    end
+  end
+
+  def update
+    begin
+      vendor = Vendor.find(params[:id])
+      vendor.update!(vendor_params)
+      render json: VendorSerializer.new(vendor)
+    rescue ActiveRecord::RecordNotFound => e
+      render json: ErrorSerializer.error_handler(e), status: 404
+    rescue ActiveRecord::RecordInvalid => e
       render json: ErrorSerializer.error_handler(e), status: 400
     end
   end

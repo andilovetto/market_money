@@ -33,6 +33,7 @@ RSpec.describe "vendor request" do
         market_1 = create(:market)
         vendor_1 = create(:vendor)
         headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
         get "/api/v0/markets/123123123123/vendors", headers: headers
   
         error_response = JSON.parse(response.body, symbolize_names: true)
@@ -96,10 +97,11 @@ RSpec.describe "vendor request" do
           "contact_name": "Berly Couwer",
           "contact_phone": "8389928383",
           "credit_accepted": false
-        }
+        }        
         headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
 
         post "/api/v0/vendors", headers: headers, params: create_params.to_json
+
 
         create_response = JSON.parse(response.body, symbolize_names: true)
 
@@ -140,7 +142,8 @@ RSpec.describe "vendor request" do
         expect(error_response[:errors][0][:detail]).to eq("Validation failed: Contact name can't be blank, Contact phone can't be blank")
       end
 
-      it "returns status 400 when credit accepted is not a boolean" do
+    context "when credit accepted field is not a boolean" do
+      it "returns status 400" do
         create_params = {
           "name": "Buzzy Bees",
           "description": "local honey and wax products",
@@ -158,6 +161,75 @@ RSpec.describe "vendor request" do
         expect(error_response).to have_key(:errors)
         expect(error_response[:errors][0]).to have_key(:detail)
         expect(error_response[:errors][0][:detail]).to eq("Validation failed: Credit accepted is not included in the list, Credit accepted is reserved")
+      end
+
+    end
+  end
+
+  describe "vendor update action" do
+    context "any attribute passed for an existing vendor will update that vendor" do
+        it "returns status 200" do
+          update_params = {
+              "contact_name": "Kimberly Couwer",
+              "credit_accepted": false
+            }
+          headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+          vendor_1 = create(:vendor)
+
+          patch "/api/v0/vendors/#{vendor_1.id}", headers: headers, params: update_params.to_json
+
+          update_response = JSON.parse(response.body, symbolize_names: true)
+
+          expect(response.status).to eq(200)
+          expect(update_response).to have_key(:data)
+          expect(update_response[:data]).to have_key(:id)
+          expect(update_response[:data]).to have_key(:type)
+          expect(update_response[:data]).to have_key(:attributes)
+          expect(update_response[:data][:attributes]).to have_key(:name)
+          expect(update_response[:data][:attributes]).to have_key(:description)
+          expect(update_response[:data][:attributes]).to have_key(:contact_name)
+          expect(update_response[:data][:attributes][:contact_name]).to eq("Kimberly Couwer")
+          expect(update_response[:data][:attributes]).to have_key(:contact_phone)
+          expect(update_response[:data][:attributes]).to have_key(:credit_accepted)
+          expect(update_response[:data][:attributes][:credit_accepted]).to be(false)
+        end
+      end
+    end
+
+    context "attempting to update a nonexistent vendor raises an error" do
+      it "returns status 404" do
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        patch "/api/v0/vendors/123123123123", headers: headers
+
+        error_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response.status).to eq(404)
+        expect(error_response).to have_key(:errors)
+        expect(error_response[:errors][0]).to have_key(:detail)
+        expect(error_response[:errors][0][:detail]).to eq("Couldn't find Vendor with 'id'=123123123123")
+      end
+    end
+
+    context "updating vendor attributes with blank fields raises an error" do
+      it "returns status 400" do
+        update_params = {
+          "contact_name": "",
+          "credit_accepted": false
+          }
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        vendor_1 = create(:vendor)
+
+        patch "/api/v0/vendors/#{vendor_1.id}", headers: headers, params: update_params.to_json
+
+        error_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response.status).to eq(400)
+        expect(error_response).to have_key(:errors)
+        expect(error_response[:errors][0]).to have_key(:detail)
+        expect(error_response[:errors][0][:detail]).to eq("Validation failed: Contact name can't be blank")
       end
     end
   end
