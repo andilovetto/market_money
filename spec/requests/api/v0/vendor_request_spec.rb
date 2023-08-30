@@ -86,4 +86,79 @@ RSpec.describe "vendor request" do
       end
     end
   end
+
+  describe "vendor create action" do
+    context "when all required attributes are passed" do
+      it "returns status 201 with newly created vendor resource" do
+        create_params = {
+          "name": "Buzzy Bees",
+          "description": "local honey and wax products",
+          "contact_name": "Berly Couwer",
+          "contact_phone": "8389928383",
+          "credit_accepted": false
+        }
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        post "/api/v0/vendors", headers: headers, params: create_params.to_json
+
+        create_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response.status).to eq(201)
+        expect(create_response).to have_key(:data)
+        expect(create_response[:data]).to have_key(:id)
+        expect(create_response[:data]).to have_key(:type)
+        expect(create_response[:data]).to have_key(:attributes)
+        expect(create_response[:data][:attributes]).to have_key(:name)
+        expect(create_response[:data][:attributes][:name]).to eq("Buzzy Bees")
+        expect(create_response[:data][:attributes]).to have_key(:description)
+        expect(create_response[:data][:attributes][:description]).to eq("local honey and wax products")
+        expect(create_response[:data][:attributes]).to have_key(:contact_name)
+        expect(create_response[:data][:attributes][:contact_name]).to eq("Berly Couwer")
+        expect(create_response[:data][:attributes]).to have_key(:contact_phone)
+        expect(create_response[:data][:attributes][:contact_phone]).to eq("8389928383")
+        expect(create_response[:data][:attributes]).to have_key(:credit_accepted)
+        expect(create_response[:data][:attributes][:credit_accepted]).to be(false)
+      end
+    end
+
+    context "when all required attributes are not passed" do
+      it "returns status 400" do
+        create_params = {
+          "name": "Buzzy Bees",
+          "description": "local honey and wax products",
+          "credit_accepted": false
+        }
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        post "/api/v0/vendors", headers: headers, params: create_params.to_json
+
+        error_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response.status).to eq(400)
+        expect(error_response).to have_key(:errors)
+        expect(error_response[:errors][0]).to have_key(:detail)
+        expect(error_response[:errors][0][:detail]).to eq("Validation failed: Contact name can't be blank, Contact phone can't be blank")
+      end
+
+      it "returns status 400 when credit accepted is not a boolean" do
+        create_params = {
+          "name": "Buzzy Bees",
+          "description": "local honey and wax products",
+          "contact_name": "Berly Couwer",
+          "contact_phone": "8389928383",
+          "credit_accepted": nil
+        }
+        headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
+
+        post "/api/v0/vendors", headers: headers, params: create_params.to_json
+
+        error_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response.status).to eq(400)
+        expect(error_response).to have_key(:errors)
+        expect(error_response[:errors][0]).to have_key(:detail)
+        expect(error_response[:errors][0][:detail]).to eq("Validation failed: Credit accepted is not included in the list, Credit accepted is reserved")
+      end
+    end
+  end
 end
