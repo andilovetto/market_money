@@ -11,6 +11,16 @@ class Api::V0::MarketVendorsController < ApplicationController
     end
   end
 
+  def destroy
+    begin
+      market_vendor = MarketVendor.find_by!(market_id: params[:market_id], vendor_id: params[:vendor_id])
+      market_vendor.destroy
+      render json: { }, status: 204
+    rescue StandardError => e
+      render json: ErrorSerializer.error_handler(e), status: 404
+    end
+  end
+
 
   private
 

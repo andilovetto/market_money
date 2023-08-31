@@ -248,7 +248,7 @@ RSpec.describe "vendor request" do
       end
     end
 
-    context "when an invalid id is passed it will raise an error" do
+    context "when an invalid id is passed, it will raise an error" do
       it "returns status 404" do
 
         headers = { 'CONTENT_TYPE' => 'application/json', "Accept" => 'application/json' }
