@@ -38,12 +38,16 @@ gem "bootsnap", require: false
 
 gem "jsonapi-serializer"
 
+gem "faraday"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
   gem "pry"
   gem "shoulda-matchers"
   gem "faker"
+  gem "vcr"
+  gem "webmock"
 
 end
 
